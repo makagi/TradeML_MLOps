@@ -1,0 +1,78 @@
+# パイプライン設定ファイル
+pipeline:
+  name: "trading-ml-pipeline"
+  version: "1.0.0"
+  description: "機械学習トレーディングパイプライン"
+
+# 環境設定
+environment:
+  project_id: "helpful-girder-421422"
+  region: "us-central1"
+  bucket: "gs://trade-mlops-bucket"
+  service_account: "akamlops@helpful-girder-421422.iam.gserviceaccount.com"
+
+# データ設定
+data:
+  raw_data_path: "gs://trade-mlops-bucket/data/stock.csv"
+  processed_data_path: "gs://trade-mlops-bucket/processed/stock_processed.csv"
+  feature_data_path: "gs://trade-mlops-bucket/features/stock_features.csv"
+
+# コンポーネント選択と設定
+components:
+  # レイヤー1: 前処理
+  preprocessing:
+    type: "standard_scaler"  # standard_scaler, min_max_scaler, robust_scaler
+    enabled: true
+    params:
+      fillna_strategy: "forward_fill"  # forward_fill, backward_fill, mean, median
+      remove_duplicates: true
+
+  # レイヤー2: 特徴量エンジニアリング
+  feature_engineering:
+    type: "technical_indicators"  # technical_indicators, custom_features
+    enabled: true
+    params:
+      indicators:
+        - name: "RSI"
+          period: 14
+        - name: "MACD"
+          fast: 12
+          slow: 26
+          signal: 9
+        - name: "SMA"
+          periods: [20, 50, 200]
+
+  # レイヤー3: モデル学習
+  training:
+    type: "random_forest"  # random_forest, xgboost, lightgbm
+    enabled: true
+    params:
+      n_estimators: 100
+      max_depth: 10
+      random_state: 42
+      class_weight: "balanced"
+
+  # レイヤー4: 評価
+  evaluation:
+    type: "classification_metrics"  # classification_metrics, regression_metrics
+    enabled: true
+    params:
+      metrics: ["accuracy", "precision", "recall", "f1"]
+      save_confusion_matrix: true
+
+# 実験設定（並列実行）
+experiments:
+  mode: "grid_search"  # grid_search, random_search, single
+  max_parallel_trials: 3
+  
+  # 探索する特徴量の組み合わせ
+  feature_combinations:
+    - ["Open", "Close"]
+    - ["Open", "Close", "Volume"]
+    - ["Open", "High", "Low", "Close", "Volume"]
+    - ["RSI", "MACD", "SMA_20"]
+  
+  # ハイパーパラメータグリッド
+  hyperparameters:
+    n_estimators: [50, 100, 200]
+    max_depth: [5, 10, 15]
