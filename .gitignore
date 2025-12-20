@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+
+# Data and Models
+data/
+models/
+
+# Google Cloud Credentials (safety)
+*.json
+GOOGLE_APPLICATION_CREDENTIALS/
+
+# IDE
+.vscode/
+.idea/
