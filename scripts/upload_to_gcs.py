@@ -1,35 +1,123 @@
-from google.cloud import storage
+# -*- coding: utf-8 -*-
+"""GCSへのデータアップロードスクリプト（改良版）"""
 import os
+import sys
+from pathlib import Path
 
-# Credential Setup (Same as pipeline)
-CREDENTIALS_DIR = r"D:\work\GOOGLE_APPLICATION_CREDENTIALS"
-CREDENTIALS_FILE = "helpful-girder-421422-ee6bb27e5b9a.json"
-CREDENTIALS_PATH = os.path.join(CREDENTIALS_DIR, CREDENTIALS_FILE)
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = CREDENTIALS_PATH
 
-# Configuration
-PROJECT_ID = "helpful-girder-421422"
-BUCKET_NAME = "trade-mlops-bucket"
-SOURCE_FILE = "data/stock.csv"
-DESTINATION_BLOB = "data/stock.csv"
+def upload_to_gcs(
+    local_path: str,
+    bucket_name: str,
+    gcs_path: str,
+    project_id: str = None
+):
+    """ローカルファイルをGCSにアップロード
+    
+    Args:
+        local_path: ローカルファイルパス
+        bucket_name: GCSバケット名（gs://なし）
+        gcs_path: GCS内のパス
+        project_id: GCPプロジェクトID（オプション）
+    """
+    try:
+        from google.cloud import storage
+    except ImportError:
+        print("[ERROR] google-cloud-storage not installed")
+        print("Run: pip install google-cloud-storage")
+        return False
+    
+    # ファイル存在確認
+    if not os.path.exists(local_path):
+        print(f"[ERROR] Local file not found: {local_path}")
+        return False
+    
+    print(f"[UPLOAD] Uploading to GCS...")
+    print(f"  Source: {local_path}")
+    print(f"  Bucket: {bucket_name}")
+    print(f"  Destination: {gcs_path}")
+    
+    try:
+        # GCSクライアント作成
+        if project_id:
+            client = storage.Client(project=project_id)
+        else:
+            client = storage.Client()
+        
+        # バケット取得
+        bucket = client.bucket(bucket_name)
+        
+        # Blobを作成してアップロード
+        blob = bucket.blob(gcs_path)
+        blob.upload_from_filename(local_path)
+        
+        print(f"[OK] Upload successful!")
+        print(f"     GCS URI: gs://{bucket_name}/{gcs_path}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"[ERROR] Upload failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
-def upload_blob(bucket_name, source_file_name, destination_blob_name):
-    """Uploads a file to the bucket."""
-    storage_client = storage.Client(project=PROJECT_ID)
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
 
-    print(f"Uploading {source_file_name} to gs://{bucket_name}/{destination_blob_name}...")
-    blob.upload_from_filename(source_file_name)
+def main():
+    """メイン実行"""
+    # 設定
+    PROJECT_ID = "helpful-girder-421422"
+    BUCKET_NAME = "trade-mlops-bucket"
+    
+    # アップロードするファイル
+    files_to_upload = [
+        {
+            "local": "data/stock.csv",
+            "gcs": "data/stock.csv",
+            "description": "Training data"
+        }
+    ]
+    
+    print("=" * 60)
+    print("  GCS Upload Script")
+    print("=" * 60)
+    print(f"\nProject: {PROJECT_ID}")
+    print(f"Bucket: gs://{BUCKET_NAME}")
+    
+    # 認証情報確認
+    creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+    if creds_path:
+        print(f"Credentials: {creds_path}")
+    else:
+        print("[WARN] GOOGLE_APPLICATION_CREDENTIALS not set")
+        print("       Using default credentials")
+    
+    print("\n" + "=" * 60)
+    
+    # 各ファイルをアップロード
+    success_count = 0
+    for file_info in files_to_upload:
+        print(f"\n[{file_info['description']}]")
+        
+        if upload_to_gcs(
+            local_path=file_info['local'],
+            bucket_name=BUCKET_NAME,
+            gcs_path=file_info['gcs'],
+            project_id=PROJECT_ID
+        ):
+            success_count += 1
+    
+    # サマリー
+    print("\n" + "=" * 60)
+    print(f"Upload Summary: {success_count}/{len(files_to_upload)} successful")
+    print("=" * 60)
+    
+    if success_count == len(files_to_upload):
+        print("\n[OK] All files uploaded successfully!")
+        return 0
+    else:
+        print("\n[ERROR] Some uploads failed. Check the errors above.")
+        return 1
 
-    print(f"File {source_file_name} uploaded to {destination_blob_name}.")
 
 if __name__ == "__main__":
-    if not os.path.exists(SOURCE_FILE):
-        print(f"Error: Source file {SOURCE_FILE} not found.")
-    else:
-        try:
-            upload_blob(BUCKET_NAME, SOURCE_FILE, DESTINATION_BLOB)
-        except Exception as e:
-            print(f"Failed to upload: {e}")
-            print("Please ensure you have authenticated with 'gcloud auth application-default login' if running locally.")
+    sys.exit(main())

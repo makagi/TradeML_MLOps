@@ -106,6 +106,35 @@ python test_system.py
 scripts\run_with_venv.bat test_system.py
 ```
 
+### 🚀 Vertex AI実行準備
+
+初回実行の準備を自動化：
+
+```cmd
+scripts\prepare_vertex_ai.bat
+```
+
+このスクリプトは以下を実行：
+1. サンプルデータ生成（1000行のOHLCV株価データ）
+2. GCSへのアップロード
+3. パイプラインのコンパイル
+
+**手動実行**:
+
+```cmd
+# 1. サンプルデータ生成
+venv\Scripts\activate
+python scripts\generate_sample_data.py 1000 data\stock.csv
+
+# 2. GCSアップロード
+python scripts\upload_to_gcs.py
+
+# 3. パイプライン実行
+python run_pipeline.py
+```
+
+詳細は [`docs/vertex_ai_execution_guide.md`](file:///d:/work/AI-Trade/TradeML_MLOps/docs/vertex_ai_execution_guide.md) を参照。
+
 ### パイプライン実行
 
 #### オプション1: 対話的実行
