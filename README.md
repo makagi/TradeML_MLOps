@@ -1,56 +1,74 @@
-# トレーディング用 Vertex AI パイプライン
+# Hybrid MLOps Trading System
 
-このプロジェクトは、BigQuery からデータを読み込み、PyTorch モデルをトレーニングし、結果を保存する Vertex AI パイプラインを実装します。MLOps ワークフローのテンプレートとして設計されています。
+This project implements a Hybrid MLOps architecture for trading systems, allowing for:
+1.  **Fast Local Development**: Debug and iterate on model logic locally using `src/train.py`.
+2.  **Scalable Cloud Experiments**: Run massive parallel experiments on Vertex AI Pipelines.
 
-## 前提条件
+## Prerequisites
 
 *   Windows OS
-*   Python 3.9 以上
-*   Google Cloud SDK (`gcloud` CLI) がインストールされ、認証されていること。
+*   Python 3.9+
+*   Google Cloud SDK (`gcloud`) installed and authenticated.
+*   Google Cloud Project with Vertex AI and GCS enabled.
 
-## プロジェクト構成
+## Project Structure
 
-*   `pipelines/`: パイプライン定義とコンポーネントロジックが含まれています。
-    *   `trading_pipeline.py`: メインのパイプラインコード。
-    *   `submit_pipeline.py`: パイプラインを Vertex AI に送信するためのスクリプト。
-*   `scripts/`: セットアップと実行のためのヘルパースクリプト。
-    *   `setup.bat`: 仮想環境 (`venv`) をセットアップします。
-    *   `run_pipeline.bat`: パイプラインを JSON にコンパイルします。
-    *   `submit_job.bat`: ジョブを Vertex AI に送信します。
-    *   `test_local.bat`: ローカル単体テストを実行します。
-*   `tests/`: 単体テスト。
+*   `src/`: Core logic shared between local and cloud.
+    *   `train.py`: The hybrid training script. Trains a model and saves it. Supports local paths and GCS paths.
+*   `pipelines/`: Vertex AI Pipeline definitions.
+    *   `trading_pipeline.py`: Defines the pipeline, creating a component from `src/train.py` logic, and submits it to Vertex AI.
+*   `scripts/`: Helper scripts.
+    *   `setup.bat`: Sets up the local virtual environment (`venv`).
+    *   `local_run.bat`: Runs `src/train.py` locally with sample data.
+    *   `submit_job.bat`: Compiles and submits the pipeline to Vertex AI (triggers `trading_pipeline.py`).
+    *   `upload_to_gcs.py`: Uploads local data to GCS.
+*   `data/`: Local datasets (ignored by git).
+*   `models/`: Local model artifacts (ignored by git).
 
-## セットアップ
+## Setup
 
-1.  プロジェクトのルートでターミナルを開きます。
-2.  セットアップスクリプトを実行します:
+1.  Open a terminal in the project root.
+2.  Run the setup script:
     ```cmd
     scripts\setup.bat
     ```
-    これにより `venv` が作成され、必要なパッケージがインストールされます。
 
-## 使用方法
+## Workflow
 
-### 1. パイプラインのコンパイル
-パイプラインコードを `trading_pipeline.json` にコンパイルするには:
+### 1. Local Development (Fast Iteration)
+
+Develop your model logic in `src/train.py`. To test it locally:
+
 ```cmd
-scripts\run_pipeline.bat
+scripts\local_run.bat
 ```
 
-### 2. ローカルテストの実行
-コンポーネントとコンパイルをローカルで検証するには:
+This will train a model using `data/stock.csv` and save it to `models/model_local.pkl`.
+
+### 2. Prepare for Cloud (Data Upload)
+
+Before running on the cloud, ensure your data is in Google Cloud Storage:
+
 ```cmd
-scripts\test_local.bat
+venv\Scripts\python scripts\upload_to_gcs.py
 ```
 
-### 3. Vertex AI への送信
-パイプラインジョブを Vertex AI に送信するには:
+*Note: Ensure `scripts\upload_to_gcs.py` is configured with your Bucket Name.*
+
+### 3. Cloud Execution (Parallel Experiments)
+
+To run the pipeline on Vertex AI (which runs `src/train.py` logic in parallel with different configurations):
+
 ```cmd
 scripts\submit_job.bat
 ```
-*注意: `pipelines/submit_pipeline.py` のバケット URL を正しく更新していることを確認してください。*
 
-## 設定
+This will:
+1.  Compile the pipeline.
+2.  Submit a job to Vertex AI.
+3.  Output a link to the Vertex AI Console to track progress.
 
-*   **Project ID**: `pipelines/trading_pipeline.py` と `pipelines/submit_pipeline.py` で設定されています。
-*   **Credentials**: `scripts/setup.bat` が `gcloud` のログイン状態を確認します。
+## Configuration
+
+*   **Credentials**: Set via `GOOGLE_APPLICATION_CREDENTIALS` in scripts.
+*   **Project Config**: defined in `pipelines/trading_pipeline.py` (PROJECT_ID, BUCKET_URI).

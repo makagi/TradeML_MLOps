@@ -9,6 +9,15 @@ BUCKET_URI = "gs://trade-mlops-bucket"
 PIPELINE_ROOT = f"{BUCKET_URI}/pipeline_root"
 SERVICE_ACCOUNT = "akamlops@helpful-girder-421422.iam.gserviceaccount.com"
 
+# Credential Setup
+import os
+CREDENTIALS_DIR = r"D:\work\GOOGLE_APPLICATION_CREDENTIALS"
+CREDENTIALS_FILE = "helpful-girder-421422-ee6bb27e5b9a.json"
+CREDENTIALS_PATH = os.path.join(CREDENTIALS_DIR, CREDENTIALS_FILE)
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = CREDENTIALS_PATH
+if not os.path.exists(CREDENTIALS_PATH):
+    print(f"[WARNING] Credential file not found at: {CREDENTIALS_PATH}")
+
 # --- Hybrid Training Component ---
 # This component wraps the logic of src/train.py.
 # For a true hybrid approach, we would ideally install the package or clone the repo.
@@ -82,9 +91,16 @@ def train_hybrid_component(
         print(f"Logging failed: {e}")
 
     # Save Model
-    os.makedirs(os.path.dirname(model_output_path), exist_ok=True)
-    joblib.dump(model, model_output_path)
-    print(f"Model saved to: {model_output_path}")
+    if model_output_path.startswith("gs://"):
+        import gcsfs
+        fs = gcsfs.GCSFileSystem()
+        with fs.open(model_output_path, 'wb') as f:
+            joblib.dump(model, f)
+        print(f"Model saved to GCS: {model_output_path}")
+    else:
+        os.makedirs(os.path.dirname(model_output_path), exist_ok=True)
+        joblib.dump(model, model_output_path)
+        print(f"Model saved to: {model_output_path}")
     
     # End run
     try:

@@ -68,11 +68,17 @@ def train(data_path, features_str, n_estimators, model_output_path):
             print(f"Could not log to Vertex AI: {e}")
 
     # Save Model
-    # Ensure directory exists (for local run)
-    os.makedirs(os.path.dirname(model_output_path), exist_ok=True)
-    
-    joblib.dump(model, model_output_path)
-    print(f"Model saved to: {model_output_path}")
+    if model_output_path.startswith("gs://"):
+        import gcsfs
+        fs = gcsfs.GCSFileSystem()
+        with fs.open(model_output_path, 'wb') as f:
+            joblib.dump(model, f)
+        print(f"Model saved to GCS: {model_output_path}")
+    else:
+        # Ensure directory exists (for local run)
+        os.makedirs(os.path.dirname(model_output_path), exist_ok=True)
+        joblib.dump(model, model_output_path)
+        print(f"Model saved locally: {model_output_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
