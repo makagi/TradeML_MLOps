@@ -81,6 +81,16 @@ def list_gcs_files(bucket_name: str, prefix: str = "", project_id: str = None):
 
 def main():
     """メイン実行"""
+    # 認証情報をセットアップ（一元管理）
+    try:
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from src.utils.env_setup import setup_credentials
+        setup_credentials()
+    except Exception as e:
+        print(f"[WARN] Could not setup credentials automatically: {e}")
+        print("[INFO] Trying with environment variable or default auth...")
+    
     # 設定
     PROJECT_ID = "helpful-girder-421422"
     BUCKET_NAME = "trade-mlops-bucket"
