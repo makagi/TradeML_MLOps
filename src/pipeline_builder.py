@@ -200,13 +200,16 @@ class PipelineBuilder:
         """
         env = self.config['environment']
         
-        # 認証情報の設定
-        credentials_path = os.path.join(
-            r"D:\work\GOOGLE_APPLICATION_CREDENTIALS",
-            "helpful-girder-421422-ee6bb27e5b9a.json"
-        )
-        if os.path.exists(credentials_path):
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+        # 認証情報の設定（環境変数を優先、なければ設定ファイルから）
+        if 'GOOGLE_APPLICATION_CREDENTIALS' not in os.environ:
+            credentials_path = env.get('credentials_path')
+            if credentials_path and os.path.exists(credentials_path):
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+                print(f"[INFO] Using credentials from config: {credentials_path}")
+            else:
+                print("[WARN] No credentials found. Using default authentication.")
+        else:
+            print(f"[INFO] Using credentials from environment variable")
         
         # Vertex AI初期化
         aiplatform.init(

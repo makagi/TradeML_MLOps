@@ -10,6 +10,8 @@ environment:
   region: "us-central1"
   bucket: "gs://trade-mlops-bucket"
   service_account: "akamlops@helpful-girder-421422.iam.gserviceaccount.com"
+  # 認証情報のパス（オプション、環境変数が優先）
+  credentials_path: "D:\\work\\GOOGLE_APPLICATION_CREDENTIALS\\helpful-girder-421422-ee6bb27e5b9a.json"
 
 # データ設定
 data:

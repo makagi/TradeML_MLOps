@@ -74,10 +74,28 @@ pip install -r requirements.txt
 
 ### 2. Google Cloud認証設定
 
+認証情報は以下の優先順位で使用されます：
+
+**方法1: 環境変数（推奨）**
 ```cmd
-# 認証情報ファイルのパス設定
 set GOOGLE_APPLICATION_CREDENTIALS=D:\work\GOOGLE_APPLICATION_CREDENTIALS\helpful-girder-421422-ee6bb27e5b9a.json
 ```
+
+**方法2: 設定ファイル**
+
+[`config/pipeline_config.yaml`](file:///d:/work/AI-Trade/TradeML_MLOps/config/pipeline_config.yaml) に記載：
+```yaml
+environment:
+  credentials_path: "D:\\work\\GOOGLE_APPLICATION_CREDENTIALS\\helpful-girder-421422-ee6bb27e5b9a.json"
+```
+
+**方法3: デフォルト認証**
+```cmd
+gcloud auth application-default login
+```
+
+> [!NOTE]
+> 環境変数が設定されている場合は、それが優先されます。設定ファイルのパスは環境変数が未設定の場合のフォールバックとして使用されます。
 
 ### 3. 設定ファイルの確認
 
