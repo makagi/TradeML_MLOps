@@ -55,10 +55,20 @@ components:
   # レイヤー4: 評価
   evaluation:
     type: "classification_metrics"  # classification_metrics, regression_metrics
-    enabled: true
+    enabled: false  # 個別評価は無効化（集約で行う）
     params:
       metrics: ["accuracy", "precision", "recall", "f1"]
       save_confusion_matrix: true
+  
+  # レイヤー5: 実験結果集約（並列実験後）
+  experiment_aggregation:
+    type: "experiment_aggregator"
+    enabled: true
+    params:
+      metrics_pattern: "*_metrics.json"
+      selection_metric: "accuracy"  # accuracy, f1, precision, recall
+      selection_mode: "maximize"  # maximize or minimize
+      output_report_path: "gs://trade-mlops-bucket/reports/experiment_comparison.md"
 
 # 実験設定（並列実行）
 experiments:

@@ -155,6 +155,24 @@ class PipelineBuilder:
                     eval_task.after(tasks['training'])
                 
                 tasks['evaluation'] = eval_task
+            
+            # レイヤー5: 実験結果集約（並列実験後）
+            agg_config = config['components'].get('experiment_aggregation', {})
+            if agg_config.get('enabled', False):
+                print(f"Adding experiment aggregation component: {agg_config['type']}")
+                
+                agg_comp = get_component(agg_config['type'])
+                
+                agg_task = agg_comp(
+                    models_dir=f"{config['environment']['bucket']}/models",
+                    **agg_config.get('params', {})
+                )
+                
+                # 学習タスクの後に実行
+                if 'training' in tasks:
+                    agg_task.after(tasks['training'])
+                
+                tasks['experiment_aggregation'] = agg_task
         
         self.pipeline_func = dynamic_pipeline
         return dynamic_pipeline
