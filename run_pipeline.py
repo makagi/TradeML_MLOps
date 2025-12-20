@@ -21,16 +21,16 @@ def main():
     print("=" * 60)
     
     # パイプラインビルダーを作成
-    print(f"\n📋 Loading configuration from: {config_path}")
+    print(f"\n[CONFIG] Loading configuration from: {config_path}")
     builder = PipelineBuilder(config_path)
     
     # パイプライン構築
-    print("\n🔧 Building pipeline...")
+    print("\n[BUILD] Building pipeline...")
     builder.build_pipeline()
     
     # コンパイル
     output_path = "trading_pipeline.json"
-    print(f"\n⚙️  Compiling pipeline to: {output_path}")
+    print(f"\n[COMPILE] Compiling pipeline to: {output_path}")
     builder.compile(output_path)
     
     # 提出するか確認
@@ -38,14 +38,14 @@ def main():
     print("Pipeline compiled successfully!")
     print("=" * 60)
     
-    submit = input("\n🚀 Submit to Vertex AI? [y/N]: ").strip().lower()
+    submit = input("\n[SUBMIT?] Submit to Vertex AI? [y/N]: ").strip().lower()
     
     if submit == 'y':
-        print("\n📤 Submitting to Vertex AI...")
+        print("\n[UPLOAD] Submitting to Vertex AI...")
         builder.submit(output_path)
-        print("\n✅ Done! Check Vertex AI Console for pipeline status.")
+        print("\n[DONE] Check Vertex AI Console for pipeline status.")
     else:
-        print("\n✅ Pipeline ready. Run with '--submit' to submit later.")
+        print("\n[SKIP] Pipeline ready. Run with '--submit' to submit later.")
         print(f"   To submit manually: builder.submit('{output_path}')")
 
 
