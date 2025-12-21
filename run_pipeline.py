@@ -41,9 +41,29 @@ def main():
     submit = input("\n[SUBMIT?] Submit to Vertex AI? [y/N]: ").strip().lower()
     
     if submit == 'y':
+        # 監視オプション
+        wait_for_completion = input("[WAIT?] Wait for pipeline completion? [y/N]: ").strip().lower()
+        wait = (wait_for_completion == 'y')
+        
         print("\n[UPLOAD] Submitting to Vertex AI...")
-        builder.submit(output_path)
-        print("\n[DONE] Check Vertex AI Console for pipeline status.")
+        try:
+            result = builder.submit(output_path, wait=wait, timeout=3600)
+            
+            if wait:
+                if result["status"] == "SUCCESS":
+                    print("\n[DONE] Pipeline completed successfully!")
+                    print("Check results in GCS:")
+                    print("  python scripts\\list_gcs_files.py models/")
+                    print("  python scripts\\list_gcs_files.py reports/")
+                else:
+                    print(f"\n[WARN] Pipeline ended with status: {result['status']}")
+            else:
+                print("\n[DONE] Pipeline submitted.")
+                print("Monitor execution at Vertex AI Console.")
+        except Exception as e:
+            print(f"\n[ERROR] Pipeline execution failed: {e}")
+            import traceback
+            traceback.print_exc()
     else:
         print("\n[SKIP] Pipeline ready. Run with '--submit' to submit later.")
         print(f"   To submit manually: builder.submit('{output_path}')")

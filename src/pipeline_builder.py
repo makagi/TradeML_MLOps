@@ -192,11 +192,16 @@ class PipelineBuilder:
         )
         print(f"[OK] Pipeline compiled to: {output_path}")
     
-    def submit(self, compiled_pipeline_path: str = "pipeline.json"):
+    def submit(self, compiled_pipeline_path: str = "pipeline.json", wait: bool = False, timeout: int = 3600):
         """Vertex AIにパイプラインを提出
         
         Args:
             compiled_pipeline_path: コンパイル済みパイプラインのパス
+            wait: 完了まで待機するか
+            timeout: 待機のタイムアウト（秒）
+        
+        Returns:
+            wait=Trueの場合、実行結果の辞書
         """
         env = self.config['environment']
         
@@ -235,6 +240,34 @@ class PipelineBuilder:
         job.submit(service_account=service_account)
         print(f"[OK] Pipeline submitted successfully!")
         print(f"  Job name: {job.resource_name}")
+        
+        # 監視URLを表示
+        console_url = f"https://console.cloud.google.com/vertex-ai/locations/{env['region']}/pipelines/runs/{job.resource_name.split('/')[-1]}?project={env['project_id']}"
+        print(f"  Console: {console_url}")
+        
+        # 待機オプション
+        if wait:
+            print(f"\n[INFO] Waiting for pipeline completion (timeout: {timeout}s)...")
+            from src.utils.pipeline_monitor import monitor_pipeline_execution
+            
+            result = monitor_pipeline_execution(
+                job_resource_name=job.resource_name,
+                project_id=env['project_id'],
+                location=env['region'],
+                timeout=timeout
+            )
+            
+            if result["status"] == "FAILED":
+                print("\n[ERROR] Pipeline execution failed!")
+                print(f"Error: {result.get('error', 'Unknown error')}")
+                raise RuntimeError(f"Pipeline failed: {result.get('error', 'Unknown error')}")
+            elif result["status"] == "TIMEOUT":
+                print("\n[WARN] Pipeline monitoring timed out")
+                print(f"Pipeline may still be running. Check console: {console_url}")
+            
+            return result
+        
+        return {"job": job, "resource_name": job.resource_name}
 
 
 if __name__ == "__main__":
