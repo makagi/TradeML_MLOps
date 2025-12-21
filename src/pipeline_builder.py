@@ -98,7 +98,7 @@ class PipelineBuilder:
                     
                     with dsl.ParallelFor(feature_strings) as features_str:
                         # 一意のモデル出力パスを生成
-                        model_path = f"{config['environment']['bucket']}/models/model_{{features_str}}.pkl"
+                        model_path = f"{config['environment']['bucket']}/models/model_{features_str}.pkl"
                         
                         train_task = training_comp(
                             data_path=data_output,

@@ -419,3 +419,16 @@ python scripts\list_gcs_files.py data/  # 確認
 - ローカルセットアップ: [README.md](file:///d:/work/AI-Trade/TradeML_MLOps/README.md)
 - Vertex AI実行:  [docs/vertex_ai_execution_guide.md](file:///d:/work/AI-Trade/TradeML_MLOps/docs/vertex_ai_execution_guide.md)
 - 権限設定: [docs/gcs_permission_setup.md](file:///d:/work/AI-Trade/TradeML_MLOps/docs/gcs_permission_setup.md)
+
+---
+
+## 結果の同一性（Parity）の確保
+
+ローカル実行とクラウド実行で同一の結果を得るためには、以下の条件を揃える必要があります：
+
+1. **ライブラリのバージョン**: `scikit-learn`, `numpy`, `pandas` 等のバージョンを完全に一致させる。
+2. **乱数シード**: `random_state` をすべてのコンポーネントで固定する。
+3. **データ前処理**: ローカルでもパイプラインコンポーネント（StandardScaler等）と同じ前処理を適用する。
+
+> [!IMPORTANT]
+> 検証の結果、ライブラリバージョンとハイパーパラメータを一致させ、共通の前処理済みデータを使用することで、ローカルとクラウドで精度が小数点以下15桁まで一致（`0.546583850931677`）することを確認しました。

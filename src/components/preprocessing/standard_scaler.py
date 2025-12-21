@@ -6,8 +6,8 @@ from src.utils.component_registry import register_component
 
 @register_component('standard_scaler')
 @dsl.component(
-    base_image="python:3.9",
-    packages_to_install=["pandas", "scikit-learn", "gcsfs"]
+    base_image="python:3.11",
+    packages_to_install=["pandas==2.2.3", "scikit-learn==1.5.2", "gcsfs==2024.10.0"]
 )
 def standard_scaler_component(
     input_data_path: str,

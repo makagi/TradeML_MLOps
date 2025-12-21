@@ -6,8 +6,8 @@ from src.utils.component_registry import register_component
 
 @register_component('experiment_aggregator')
 @dsl.component(
-    base_image="python:3.9",
-    packages_to_install=["pandas", "gcsfs", "matplotlib", "seaborn"]
+    base_image="python:3.11",
+    packages_to_install=["pandas==2.2.3", "gcsfs==2024.10.0", "matplotlib==3.9.2", "seaborn==0.13.2", "tabulate==0.9.0"]
 )
 def experiment_aggregator_component(
     models_dir: str,

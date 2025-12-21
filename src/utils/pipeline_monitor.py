@@ -96,7 +96,11 @@ def monitor_pipeline_execution(
             
             # エラー詳細を取得
             error_message = "Unknown error"
-            if job.error:
+            gca_error = getattr(job.gca_resource, 'error', None)
+            if gca_error and gca_error.message:
+                error_message = gca_error.message
+                print(f"Error details: {error_message}")
+            elif job.error: # Fallback
                 error_message = str(job.error)
                 print(f"Error details: {error_message}")
             
@@ -165,8 +169,9 @@ def get_pipeline_logs(job_resource_name: str, project_id: str, location: str = "
         print(f"Created: {job.create_time}")
         print(f"Updated: {job.update_time}")
         
-        if job.error:
-            print(f"\nError: {job.error}")
+        if gca_error := getattr(job.gca_resource, 'error', None):
+            if gca_error.message:
+                print(f"\nError: {gca_error.message}")
         
         # タスク詳細を表示
         if hasattr(job, 'task_details') and job.task_details:
@@ -174,8 +179,9 @@ def get_pipeline_logs(job_resource_name: str, project_id: str, location: str = "
             for task in job.task_details:
                 print(f"\nTask: {task.task_name}")
                 print(f"  State: {task.state.name if task.state else 'UNKNOWN'}")
-                if task.error:
-                    print(f"  Error: {task.error}")
+                if task_err := getattr(task, 'error', None):
+                    if task_err.message:
+                        print(f"  Error: {task_err.message}")
         
     except Exception as e:
         print(f"[ERROR] Failed to get pipeline logs: {e}")

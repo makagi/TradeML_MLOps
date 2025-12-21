@@ -6,8 +6,8 @@ from src.utils.component_registry import register_component
 
 @register_component('random_forest')
 @dsl.component(
-    base_image="python:3.9",
-    packages_to_install=["pandas", "scikit-learn", "gcsfs", "joblib", "google-cloud-aiplatform"]
+    base_image="python:3.11",
+    packages_to_install=["pandas==2.2.3", "scikit-learn==1.5.2", "gcsfs==2024.10.0", "joblib==1.4.2", "google-cloud-aiplatform==1.70.0"]
 )
 def random_forest_component(
     data_path: str,
