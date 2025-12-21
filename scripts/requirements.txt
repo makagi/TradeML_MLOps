@@ -1,9 +1,0 @@
-google-cloud-aiplatform
-kfp
-google-cloud-bigquery
-pandas
-pyarrow
-torch
-scikit-learn
-gcsfs
-google-cloud-storage

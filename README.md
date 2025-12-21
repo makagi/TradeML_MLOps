@@ -16,25 +16,27 @@
 TradeML_MLOps/
 ├── config/
 │   └── pipeline_config.yaml          # パイプライン設定（メイン）
-├── src/
+├── src/                              # コアロジック
 │   ├── components/                   # パイプラインコンポーネント
-│   │   ├── preprocessing/            # 前処理層
-│   │   │   └── standard_scaler.py
-│   │   ├── feature_engineering/      # 特徴量エンジニアリング層
-│   │   │   └── technical_indicators.py
-│   │   ├── training/                 # モデル学習層
-│   │   │   └── random_forest.py
-│   │   └── evaluation/               # 評価層
-│   │       └── classification_metrics.py
-│   ├── utils/
-│   │   ├── config_loader.py          # YAML設定ローダー
-│   │   └── component_registry.py     # コンポーネント管理
+│   ├── utils/                        # ユーティリティ（Config, Registry等）
 │   ├── pipeline_builder.py           # パイプライン構築エンジン
-│   └── train.py                      # レガシー学習スクリプト（互換性用）
-├── run_pipeline.py                   # メイン実行スクリプト
-├── test_system.py                    # システムテスト
-└── requirements.txt                  # 依存関係
+│   └── train.py                      # ローカル学習スクリプト
+├── scripts/                          # ユーザーインターフェース (UI)
+│   ├── run_pipeline.bat              # パイプライン実行
+│   ├── prepare_vertex_ai.bat         # 初期セットアップ
+│   └── verify_run.py                 # クラウド実行結果の確認
+├── tests/                            # 内部検証・パリティ確認
+│   ├── test_system.py                # システム構成テスト
+│   ├── test_parity.py                # ローカル/クラウド精度一致確認
+│   └── test_components.py            # コンポーネント単体テスト
+├── README.md
+└── requirements.txt                  # 依存関係 (Python 3.11/安定版)
 ```
+
+| フォルダ | 役割 |
+| :--- | :--- |
+| `scripts/` | 開発者がパイプラインを操作し、データを管理するためのツール群。 |
+| `tests/` | システムの整合性、精度の再現性、および各機能の正しさを検証するための内部ツール。 |
 
 ## 🚀 セットアップ
 
