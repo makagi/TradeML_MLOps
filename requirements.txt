@@ -21,8 +21,8 @@ kfp>=2.0.0
 PyYAML>=6.0
 
 # Visualization (for evaluation)
-matplotlib>=3.6.0
-seaborn>=0.12.0
+matplotlib==3.9.2
+seaborn==0.13.2
 
 # Additional ML Libraries (optional)
 xgboost>=1.7.0
