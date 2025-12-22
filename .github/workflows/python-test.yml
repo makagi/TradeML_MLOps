@@ -1,0 +1,31 @@
+name: TradeML MLOps CI
+
+on:
+  push:
+    branches: [ "main", "develop", "feature/*" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        # Install testing tools
+        pip install pytest
+
+    - name: Run Unit Tests
+      run: |
+        # Run tests that don't require GCP credentials
+        python -m pytest tests/test_components.py tests/test_system.py tests/test_metrics_logic.py
