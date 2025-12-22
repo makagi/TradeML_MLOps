@@ -384,4 +384,5 @@ python test_system.py
 - [Kubeflow Pipelines Documentation](https://www.kubeflow.org/docs/components/pipelines/)
 - [Vertex AI Pipelines Guide](https://cloud.google.com/vertex-ai/docs/pipelines)
 - [設計ドキュメント](file:///C:/Users/masak/.gemini/antigravity/brain/a7be8cd8-fa41-4b68-af45-b9da0e1eb1ce/revised_approach.md)
+- [Gitブランチ戦略とAI連携](file:///d:/work/AI-Trade/TradeML_MLOps/docs/git_branch_strategy.md)
 
