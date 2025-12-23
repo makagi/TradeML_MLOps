@@ -3,7 +3,7 @@
 # Core ML Libraries
 pandas==2.2.3
 scikit-learn==1.5.2
-numpy==2.1.2
+numpy==1.26.4
 joblib==1.4.2
 
 # Technical Indicators
@@ -25,5 +25,7 @@ matplotlib==3.9.2
 seaborn==0.13.2
 
 # Additional ML Libraries (optional)
-xgboost>=1.7.0
-lightgbm>=3.3.0
+xgboost==2.0.3
+lightgbm==4.3.0
+torch==2.2.2
+dill==0.3.8

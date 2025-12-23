@@ -101,11 +101,25 @@ def classification_metrics_component(
         try:
             # モデルロード
             model = None
-            if model_path.startswith("gs://"):
-                with fs.open(model_path, 'rb') as f:
-                    model = joblib.load(f)
-            else:
-                model = joblib.load(model_path)
+            try:
+                if model_path.startswith("gs://"):
+                    with fs.open(model_path, 'rb') as f:
+                        try:
+                            model = joblib.load(f)
+                        except:
+                            import dill
+                            f.seek(0)
+                            model = dill.load(f)
+                else:
+                    try:
+                        model = joblib.load(model_path)
+                    except:
+                        import dill
+                        with open(model_path, 'rb') as f:
+                            model = dill.load(f)
+            except Exception as load_err:
+                print(f"Failed to load model {model_name}: {load_err}")
+                continue
             
             # 推論（特徴量の整合性チェックはスキップするため、
             # モデルが学習した際の特徴量順序とX_testの列順序が一致している前提）

@@ -53,6 +53,31 @@ components:
       max_depth: 10
       random_state: 42
       class_weight: "balanced"
+    
+    # --- Alternative Models Configuration ---
+    # To use other models, change 'type' and 'params' above.
+    
+    # [XGBoost]
+    # type: "xgboost"
+    # params:
+    #   n_estimators: 100
+    #   max_depth: 6
+    #   learning_rate: 0.1
+    
+    # [LightGBM]
+    # type: "lightgbm"
+    # params:
+    #   n_estimators: 100
+    #   num_leaves: 31
+    #   learning_rate: 0.1
+    
+    # [PyTorch Tabular (Deep Learning)]
+    # type: "pytorch_tabular"
+    # params:
+    #   epochs: 20
+    #   batch_size: 64
+    #   hidden_dim: 64
+    #   learning_rate: 0.001
 
   # レイヤー4: 評価
   evaluation:
